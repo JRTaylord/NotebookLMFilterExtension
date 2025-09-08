@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      border-radius: 8px;
+    }
+    
+    h1 {
+      margin: 0 0 15px 0;
+      font-size: 24px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    p {
+      margin: 10px 0;
+      font-size: 16px;
+      line-height: 1.4;
+    }
+    
+    button {
+      background: white;
+      color: #667eea;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    #message {
+      margin-top: 15px;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 5px;
+      min-height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>👋 Hello World!</h1>
+  <p>Welcome to your first Chrome extension!</p>
+  <button id="greetBtn">Click me!</button>
+  <div id="message"></div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
