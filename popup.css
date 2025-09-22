@@ -2,6 +2,7 @@ body {
   margin: 8px;
   margin-right: 0px;
   margin-bottom: 0px;
+  width: 310px;
 }
 
 .view {
@@ -51,12 +52,15 @@ body {
 
 .back-btn {
   margin-right: 10px;
+  margin-bottom: 5px;
 }
 
 .add-filter-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 
 .filter-input {

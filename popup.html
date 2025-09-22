@@ -5,12 +5,6 @@
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <!-- Loading view -->
-  <div id="loadingView" class="view">
-    <div class="loading-spinner"></div>
-    <p>Loading filters...</p>
-  </div>
-
   <!-- Main filter view -->
   <div id="filterView" class="view hidden">
     <button id="addFilterBtn" class="add-filter-btn">Add New Filter</button>
@@ -22,14 +16,11 @@
   
   <!-- Add new filter view -->
   <div id="addFilterView" class="view hidden">
-    <div class="header">
-      <button id="backBtn" class="back-btn">←</button>
-      <span class="header-title">Add new filter</span>
-    </div>
+    <button id="backBtn" class="back-btn">←</button>
     
     <div class="add-filter-form">
       <input type="text" id="filterInput" placeholder="Enter filter keyword..." class="filter-input">
-      <button id="confirmBtn" class="confirm-btn">Confirm</button>
+      <button id="confirmBtn" class="confirm-btn" disabled="true">Confirm</button>
     </div>
   </div>
   
