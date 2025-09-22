@@ -151,8 +151,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   function applyFilter(filterName) {
-    console.log('Popup: Attempting to send applyFilter message for:', filterName);
-
     chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
       if (!tabs[0]) {
         console.error('No active tab found');
@@ -160,7 +158,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
 
       const tab = tabs[0];
-      console.log('Popup: Active tab found:', tab);
 
       // Check if we're on the right domain
       if (!tab.url.includes('notebooklm.google.com')) {
@@ -177,7 +174,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
           // If content script isn't loaded, try to inject it
           if (chrome.runtime.lastError.message.includes('Could not establish connection')) {
-            console.log('Attempting to inject content script...');
             injectContentScript(tab.id, () => {
               // Retry sending the message
               chrome.tabs.sendMessage(tab.id, {
@@ -186,8 +182,6 @@ document.addEventListener('DOMContentLoaded', async function() {
               });
             });
           }
-        } else {
-          console.log('Popup: Message sent successfully, response:', response);
         }
       });
     });
