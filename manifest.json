@@ -9,7 +9,8 @@
     "scripting"
   ],
   "content_scripts": [{
-    "matches": ["https://notebooklm.google.com/*"],
+    "matches": ["https://notebooklm.google.com/"],
+    "exclude_matches": ["https://notebooklm.google.com/notebook/*"],
     "js": ["content.js"],
     "run_at": "document_idle"
   }],

@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     checkbox.type = 'checkbox';
     checkbox.className = 'filter-checkbox';
     checkbox.checked = activeFilter === filterName;
-    checkbox.addEventListener('change', () => toggleFilter(filterName, checkbox.checked));
+    checkbox.addEventListener('change', () => toggleFilter(filterName, checkbox.checked, checkbox));
 
     const label = document.createElement('label');
     label.textContent = filterName;
@@ -127,14 +127,15 @@ document.addEventListener('DOMContentLoaded', async function() {
     return item;
   }
 
-  async function toggleFilter(filterName, isChecked) {
+  async function toggleFilter(filterName, isChecked, sourceCheckbox) {
     if (isChecked) {
       const checkboxes = document.querySelectorAll('.filter-checkbox');
       checkboxes.forEach(cb => {
-        if (cb !== event.target) {
+        if (cb !== sourceCheckbox) {
           cb.checked = false;
         }
       });
+
 
       activeFilter = filterName;
       applyFilter(filterName);
