@@ -26,3 +26,7 @@ When you modify content scripts:
 1. Go to https://notebooklm.google.com/
 2. Click the extension icon
 3. Add filters and check them to filter notebooks by title
+
+## AI Assistance
+
+This extension was developed with AI assistance. Icons were generated using AI tools. Code was developed with AI assistance.
