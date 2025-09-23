@@ -19,47 +19,108 @@ function filterNotebooks(filterKeyword) {
 }
 
 function doFilter(filterKeyword) {
-  // Based on the HTML structure, notebooks are in table rows
-  const tableRows = document.querySelectorAll('tbody tr[mat-row]');
+  const keyword = filterKeyword.toLowerCase();
+  let foundElements = false;
 
-  if (tableRows.length > 0) {
-    const keyword = filterKeyword.toLowerCase();
+  try {
+    // Method 1: Try to filter table rows (original layout)
+    const tableRows = document.querySelectorAll('tbody tr[mat-row]');
+    if (tableRows.length > 0) {
+      foundElements = true;
 
-    tableRows.forEach(row => {
-      // Get the title cell (first column)
-      const titleCell = row.querySelector('td[mat-cell]');
-
-      if (titleCell) {
-        const titleText = titleCell.textContent.toLowerCase();
-
-        if (titleText.includes(keyword)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
+      tableRows.forEach(row => {
+        const titleCell = row.querySelector('td[mat-cell]');
+        if (titleCell) {
+          const titleText = titleCell.textContent.toLowerCase();
+          row.style.display = titleText.includes(keyword) ? '' : 'none';
         }
-      }
-    });
-  } else {
+      });
+    }
 
-    // Fallback: try to find any elements that might contain notebook titles
-    const allElements = document.querySelectorAll('*');
-    let foundNotebooks = false;
+    // Method 2: Filter card-based layout (new layout) - project buttons
+    const projectButtons = document.querySelectorAll('project-button');
+    if (projectButtons.length > 0) {
+      foundElements = true;
 
-    allElements.forEach(element => {
-      const text = element.textContent;
-      if (text && text.includes('Kansas: Dust in the Wind') ||
-        text.includes('notebook') ||
-        element.className.includes('project')) {
-        foundNotebooks = true;
-      }
-    });
+      projectButtons.forEach(button => {
+        const titleElement = button.querySelector('.project-button-title, .featured-project-title');
+        if (titleElement) {
+          const titleText = titleElement.textContent.toLowerCase();
+          button.style.display = titleText.includes(keyword) ? '' : 'none';
+        }
+      });
+    }
+
+    // Method 3: Filter mat-card elements directly
+    const matCards = document.querySelectorAll('mat-card.project-button-card');
+    if (matCards.length > 0) {
+      foundElements = true;
+
+      matCards.forEach(card => {
+        const titleElement = card.querySelector('.project-button-title, .featured-project-title');
+        if (titleElement) {
+          const titleText = titleElement.textContent.toLowerCase();
+          card.style.display = titleText.includes(keyword) ? '' : 'none';
+        }
+      });
+    }
+
+    // Method 4: Filter by looking for title elements directly
+    const titleElements = document.querySelectorAll('.project-button-title, .featured-project-title');
+    if (titleElements.length > 0 && !foundElements) {
+      foundElements = true;
+
+      titleElements.forEach(titleElement => {
+        const titleText = titleElement.textContent.toLowerCase();
+        // Find the closest parent container that represents the notebook card
+        const container = titleElement.closest('mat-card') ||
+          titleElement.closest('project-button') ||
+          titleElement.closest('[class*="project"]');
+
+        if (container) {
+          container.style.display = titleText.includes(keyword) ? '' : 'none';
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error('Chrome Extension: Error during filtering:', error);
   }
 }
 
 function showAllNotebooks() {
-  // Show all previously hidden elements
-  const hiddenElements = document.querySelectorAll('[style*="display: none"]');
-  hiddenElements.forEach(element => {
-    element.style.display = '';
-  });
+  try {
+    // Method 1: Show all table rows
+    const tableRows = document.querySelectorAll('tbody tr[mat-row]');
+    tableRows.forEach(row => {
+      row.style.display = '';
+    });
+
+    // Method 2: Show all project buttons
+    const projectButtons = document.querySelectorAll('project-button');
+    projectButtons.forEach(button => {
+      button.style.display = '';
+    });
+
+    // Method 3: Show all project cards
+    const matCards = document.querySelectorAll('mat-card.project-button-card');
+    matCards.forEach(card => {
+      card.style.display = '';
+    });
+
+    // Method 4: Show all elements that might have been hidden by title-based filtering
+    const titleElements = document.querySelectorAll('.project-button-title, .featured-project-title');
+    titleElements.forEach(titleElement => {
+      const container = titleElement.closest('mat-card') ||
+        titleElement.closest('project-button') ||
+        titleElement.closest('[class*="project"]');
+
+      if (container) {
+        container.style.display = '';
+      }
+    });
+
+  } catch (error) {
+    console.error('Chrome Extension: Error during show all:', error);
+  }
 }
