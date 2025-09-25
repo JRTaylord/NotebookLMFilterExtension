@@ -61,8 +61,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (result.filters && result.filters.length > 0) {
           filters = result.filters;
         } else {
-          // Set default filters if none exist
-          filters = ['Family', 'Finance', 'Health', 'Personal', 'Shopping'];
+          filters = [];
         }
 
         activeFilter = result.activeFilter || null;
@@ -99,6 +98,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Check if margin is needed after rendering
     setTimeout(updateScrollMargin, 0);
+    setTimeout(hideFilterListIfEmpty, 0);
   }
 
   function createFilterItem(filterName) {
@@ -250,5 +250,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Add margin when it CAN'T scroll (content fits)
     filterList.classList.toggle('no-scroll', !canScroll);
+  }
+
+  function hideFilterListIfEmpty() {
+    const filterList = document.getElementById('filterList');
+    console.log('hiding', !filters.length);
+
+    console.log('filters', filters);
+    filterList.classList.toggle('hidden', !filters.length);
   }
 });
