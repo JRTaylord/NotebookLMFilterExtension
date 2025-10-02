@@ -53,21 +53,36 @@ document.addEventListener('DOMContentLoaded', async function() {
       return;
     }
 
-    chrome.storage.local.get(['filters', 'activeFilter'], function(result) {
+    // Try to load from sync storage first (syncs across devices)
+    chrome.storage.sync.get(['filters', 'activeFilter'], function(result) {
       if (chrome.runtime.lastError) {
-        console.error('Failed to load filters:', chrome.runtime.lastError);
-        filters = ['Family', 'Finance', 'Health', 'Personal', 'Shopping'];
+        console.warn('Failed to load from sync storage, trying local:', chrome.runtime.lastError);
+
+        // Fall back to local storage if sync fails
+        chrome.storage.local.get(['filters', 'activeFilter'], function(localResult) {
+          if (chrome.runtime.lastError) {
+            console.error('Failed to load filters from local storage:', chrome.runtime.lastError);
+            filters = [];
+          } else {
+            if (localResult.filters && localResult.filters.length > 0) {
+              filters = localResult.filters;
+            } else {
+              filters = [];
+            }
+            activeFilter = localResult.activeFilter || null;
+          }
+          renderFilters();
+        });
       } else {
+        // Successfully loaded from sync storage
         if (result.filters && result.filters.length > 0) {
           filters = result.filters;
         } else {
           filters = [];
         }
-
         activeFilter = result.activeFilter || null;
+        renderFilters();
       }
-
-      renderFilters();
     });
   }
 
@@ -76,12 +91,24 @@ document.addEventListener('DOMContentLoaded', async function() {
       return; // Silent fail in development
     }
 
-    chrome.storage.local.set({
+    const data = {
       filters: filters,
       activeFilter: activeFilter
-    }, function() {
+    };
+
+    // Save to sync storage first (syncs across devices)
+    chrome.storage.sync.set(data, function() {
       if (chrome.runtime.lastError) {
-        console.error('Failed to save filters:', chrome.runtime.lastError);
+        console.warn('Failed to save to sync storage:', chrome.runtime.lastError);
+        // Note: Sync storage has limits (100KB total, 8KB per item)
+        // If sync fails, local backup below will still work
+      }
+    });
+
+    // Also save to local storage as backup
+    chrome.storage.local.set(data, function() {
+      if (chrome.runtime.lastError) {
+        console.error('Failed to save to local storage:', chrome.runtime.lastError);
       }
     });
   }
