@@ -32,7 +32,7 @@ function removeFilterFromList(filterName, currentFilters) {
   return currentFilters.filter(f => f !== filterName);
 }
 
-function toggleActiveFilter(filterName, isChecked, currentActiveFilter) {
+function toggleActiveFilter(filterName, isChecked) {
   if (isChecked) {
     return filterName;
   } else {
@@ -99,71 +99,35 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   function loadFilters() {
-    if (typeof chrome === 'undefined' || !chrome.storage) {
+    if (typeof FilterState === 'undefined') {
       // Fallback for development/testing
       PopupState.setFilters(['Family', 'Finance', 'Health', 'Personal', 'Shopping']);
       renderFilters();
       return;
     }
 
-    // Try to load from sync storage first (syncs across devices)
-    chrome.storage.sync.get(['filters', 'activeFilter'], function(result) {
-      if (chrome.runtime.lastError) {
-        console.warn('Failed to load from sync storage, trying local:', chrome.runtime.lastError);
+    // Load filters list
+    FilterState.getFilters(function(filters) {
+      PopupState.setFilters(filters);
 
-        // Fall back to local storage if sync fails
-        chrome.storage.local.get(['filters', 'activeFilter'], function(localResult) {
-          if (chrome.runtime.lastError) {
-            console.error('Failed to load filters from local storage:', chrome.runtime.lastError);
-            PopupState.setFilters([]);
-          } else {
-            if (localResult.filters && localResult.filters.length > 0) {
-              PopupState.setFilters(localResult.filters);
-            } else {
-              PopupState.setFilters([]);
-            }
-            PopupState.setActiveFilter(localResult.activeFilter || null);
-          }
-          renderFilters();
-        });
-      } else {
-        // Successfully loaded from sync storage
-        if (result.filters && result.filters.length > 0) {
-          PopupState.setFilters(result.filters);
-        } else {
-          PopupState.setFilters([]);
-        }
-        PopupState.setActiveFilter(result.activeFilter || null);
+      // Load active filter
+      FilterState.getActiveFilter(function(activeFilter) {
+        PopupState.setActiveFilter(activeFilter);
         renderFilters();
-      }
+      });
     });
   }
 
   function saveFilters() {
-    if (typeof chrome === 'undefined' || !chrome.storage) {
+    if (typeof FilterState === 'undefined') {
       return; // Silent fail in development
     }
 
-    const data = {
-      filters: PopupState.getFilters(),
-      activeFilter: PopupState.getActiveFilter()
-    };
+    // Save filters list
+    FilterState.setFilters(PopupState.getFilters());
 
-    // Save to sync storage first (syncs across devices)
-    chrome.storage.sync.set(data, function() {
-      if (chrome.runtime.lastError) {
-        console.warn('Failed to save to sync storage:', chrome.runtime.lastError);
-        // Note: Sync storage has limits (100KB total, 8KB per item)
-        // If sync fails, local backup below will still work
-      }
-    });
-
-    // Also save to local storage as backup
-    chrome.storage.local.set(data, function() {
-      if (chrome.runtime.lastError) {
-        console.error('Failed to save to local storage:', chrome.runtime.lastError);
-      }
-    });
+    // Save active filter
+    FilterState.setActiveFilter(PopupState.getActiveFilter());
   }
 
   function renderFilters() {
@@ -343,6 +307,28 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     console.log('filters', PopupState.getFilters());
     filterList.classList.toggle('hidden', !PopupState.getFilters().length);
+  }
+
+  // Listen for storage changes to sync activeFilter from content script or other sources
+  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+    chrome.storage.onChanged.addListener(function(changes, areaName) {
+      // React to activeFilter changes
+      if (changes.activeFilter) {
+        const newActiveFilter = changes.activeFilter.newValue;
+        PopupState.setActiveFilter(newActiveFilter);
+
+        // Update UI checkboxes to reflect the change
+        const checkboxes = document.querySelectorAll('.filter-checkbox');
+        checkboxes.forEach(cb => {
+          const label = cb.nextElementSibling;
+          if (label && label.textContent === newActiveFilter) {
+            cb.checked = true;
+          } else {
+            cb.checked = false;
+          }
+        });
+      }
+    });
   }
 });
 

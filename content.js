@@ -1,25 +1,88 @@
 // Clear active filter when page loads (prevents confusion on page refresh)
 // This runs only on NotebookLM pages as defined in manifest.json
-if (typeof chrome !== 'undefined' && chrome.storage) {
-  // Clear the activeFilter from storage
-  chrome.storage.sync.set({ activeFilter: null }, function() {
-    if (chrome.runtime.lastError) {
-      console.warn('Failed to clear activeFilter in sync storage:', chrome.runtime.lastError);
+if (typeof FilterState !== 'undefined') {
+  FilterState.clearActiveFilter(function() {
+    // After clearing, visually clear any applied filters on the page
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', showAllNotebooks);
+    } else {
+      showAllNotebooks();
     }
   });
-
-  chrome.storage.local.set({ activeFilter: null }, function() {
-    if (chrome.runtime.lastError) {
-      console.warn('Failed to clear activeFilter in local storage:', chrome.runtime.lastError);
-    }
-  });
-
-  // Also visually clear any applied filters on the page
+} else {
+  // Fallback if FilterState not loaded yet
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', showAllNotebooks);
   } else {
     showAllNotebooks();
   }
+}
+
+// Set up MutationObserver to re-apply filters when page content changes
+// (e.g., switching between card/list view or all/featured notebooks)
+function setupMutationObserver() {
+  const observer = new MutationObserver((mutations) => {
+    // Only respond to structural DOM changes (nodes added/removed), not style changes
+    const hasStructuralChanges = mutations.some(mutation => {
+      // Ignore our own style attribute changes
+      if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+        return false;
+      }
+      // Only care about nodes being added or removed (view switches, content changes)
+      return mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0;
+    });
+
+    if (hasStructuralChanges) {
+      // Re-apply active filter if one exists
+      reapplyActiveFilter();
+    }
+  });
+
+  // Observe the main content area for changes
+  const targetNode = document.body;
+  if (targetNode) {
+    observer.observe(targetNode, {
+      childList: true,      // Watch for nodes being added/removed
+      subtree: true         // Watch all descendants
+      // Note: NOT watching attributes, so our style changes won't trigger the observer
+    });
+  }
+}
+
+// Re-apply the active filter from storage
+function reapplyActiveFilter() {
+  if (typeof FilterState === 'undefined') return;
+
+  FilterState.getActiveFilter(function(activeFilter) {
+    if (activeFilter) {
+      filterNotebooks(activeFilter);
+    }
+  });
+}
+
+// Start observing when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', setupMutationObserver);
+} else {
+  setupMutationObserver();
+}
+
+// Listen for storage changes to sync activeFilter across contexts
+if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
+  chrome.storage.onChanged.addListener(function(changes, areaName) {
+    // React to activeFilter changes from popup or other sources
+    if (changes.activeFilter) {
+      const newActiveFilter = changes.activeFilter.newValue;
+
+      if (newActiveFilter) {
+        // Filter was activated, apply it
+        filterNotebooks(newActiveFilter);
+      } else {
+        // Filter was cleared, show all notebooks
+        showAllNotebooks();
+      }
+    }
+  });
 }
 
 // Listen for messages from popup
