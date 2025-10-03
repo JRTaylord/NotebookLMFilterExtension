@@ -249,5 +249,153 @@ describe('NotebookLM Filter - Content Script', () => {
       const row = document.querySelector('tbody tr[mat-row]');
       expect(row.style.display).toBe('');
     });
+
+    test('handles emoji in filter', () => {
+      document.body.innerHTML = `
+        <table>
+          <tbody>
+            <tr mat-row>
+              <td mat-cell>🎯 Goals 2024</td>
+            </tr>
+            <tr mat-row>
+              <td mat-cell>Regular Notes</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      doFilter('🎯');
+
+      const rows = document.querySelectorAll('tbody tr[mat-row]');
+      expect(rows[0].style.display).toBe('');
+      expect(rows[1].style.display).toBe('none');
+    });
+
+    test('handles unicode characters in filter', () => {
+      document.body.innerHTML = `
+        <table>
+          <tbody>
+            <tr mat-row>
+              <td mat-cell>Café Notes</td>
+            </tr>
+            <tr mat-row>
+              <td mat-cell>Coffee Notes</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      doFilter('café');
+
+      const rows = document.querySelectorAll('tbody tr[mat-row]');
+      expect(rows[0].style.display).toBe('');
+      expect(rows[1].style.display).toBe('none');
+    });
+
+    test('handles empty filter string', () => {
+      document.body.innerHTML = `
+        <table>
+          <tbody>
+            <tr mat-row>
+              <td mat-cell>Test Notebook</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      doFilter('');
+
+      const row = document.querySelector('tbody tr[mat-row]');
+      expect(row.style.display).toBe('');
+    });
+
+    test('handles filters with quotes', () => {
+      document.body.innerHTML = `
+        <table>
+          <tbody>
+            <tr mat-row>
+              <td mat-cell>John's Meeting Notes</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      doFilter("john's");
+
+      const row = document.querySelector('tbody tr[mat-row]');
+      expect(row.style.display).toBe('');
+    });
+
+    test('handles filters with numbers', () => {
+      document.body.innerHTML = `
+        <table>
+          <tbody>
+            <tr mat-row>
+              <td mat-cell>Q1 2024 Budget</td>
+            </tr>
+            <tr mat-row>
+              <td mat-cell>Q2 2024 Budget</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      doFilter('Q1 2024');
+
+      const rows = document.querySelectorAll('tbody tr[mat-row]');
+      expect(rows[0].style.display).toBe('');
+      expect(rows[1].style.display).toBe('none');
+    });
+
+    test('handles filters with parentheses', () => {
+      document.body.innerHTML = `
+        <table>
+          <tbody>
+            <tr mat-row>
+              <td mat-cell>Project (Draft) v2</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      doFilter('(draft)');
+
+      const row = document.querySelector('tbody tr[mat-row]');
+      expect(row.style.display).toBe('');
+    });
+
+    test('handles filters with hyphens and underscores', () => {
+      document.body.innerHTML = `
+        <table>
+          <tbody>
+            <tr mat-row>
+              <td mat-cell>My-Project_2024 Documentation</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      doFilter('my-project_2024');
+
+      const row = document.querySelector('tbody tr[mat-row]');
+      expect(row.style.display).toBe('');
+    });
+
+    test('handles filters with forward slashes', () => {
+      document.body.innerHTML = `
+        <table>
+          <tbody>
+            <tr mat-row>
+              <td mat-cell>Work/Personal Tasks</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      doFilter('work/personal');
+
+      const row = document.querySelector('tbody tr[mat-row]');
+      expect(row.style.display).toBe('');
+    });
   });
 });

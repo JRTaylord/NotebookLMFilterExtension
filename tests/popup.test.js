@@ -55,6 +55,31 @@ describe('NotebookLM Filter - Popup Functions', () => {
       expect(original).toEqual(['Family', 'Work']);
       expect(result).toEqual(['Family', 'Work', 'Personal']);
     });
+
+    test('handles filters with special characters', () => {
+      const result = addFilter('R&D Projects', []);
+      expect(result).toContain('R&D Projects');
+    });
+
+    test('handles filters with quotes', () => {
+      const result = addFilter("John's Notes", []);
+      expect(result).toContain("John's Notes");
+    });
+
+    test('handles filters with numbers', () => {
+      const result = addFilter('Q1 2024', []);
+      expect(result).toContain('Q1 2024');
+    });
+
+    test('handles filters with emoji', () => {
+      const result = addFilter('🎯 Goals', []);
+      expect(result).toContain('🎯 Goals');
+    });
+
+    test('handles filters with unicode characters', () => {
+      const result = addFilter('Café Notes', []);
+      expect(result).toContain('Café Notes');
+    });
   });
 
   describe('removeFilterFromList()', () => {
@@ -167,6 +192,18 @@ describe('NotebookLM Filter - Popup Functions', () => {
 
     test('returns false when no filter is active', () => {
       const result = shouldClearActiveFilter('Work', null);
+
+      expect(result).toBe(false);
+    });
+
+    test('handles null active filter', () => {
+      const result = shouldClearActiveFilter('Work', null);
+
+      expect(result).toBe(false);
+    });
+
+    test('handles undefined active filter', () => {
+      const result = shouldClearActiveFilter('Work', undefined);
 
       expect(result).toBe(false);
     });
