@@ -25,6 +25,8 @@ function addFilter(filterName, currentFilters) {
   const trimmed = filterName.trim();
   if (!trimmed) return currentFilters;
   if (currentFilters.includes(trimmed)) return currentFilters;
+  // Todo: make this add the element in a sorted way because the filters are already sorted and sorting costs O(nlog(n)), while inserting in the sorted position costs O(n), resulting in increased performance by removing the filter sorting function on renderFilters
+  // Though may not be worth it at this scale and would need to include a way to sort any unsorted saved filters which can be done by checking if the filters are sorted and then sorting them if they aren't which will be O(n) in most cases
   return [...currentFilters, trimmed];
 }
 
