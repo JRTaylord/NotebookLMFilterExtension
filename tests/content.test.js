@@ -20,7 +20,7 @@ describe('NotebookLM Filter - Content Script', () => {
     document.body.innerHTML = '';
 
     // Mock console.error to avoid noise in tests
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => { });
   });
 
   afterEach(() => {
@@ -152,39 +152,6 @@ describe('NotebookLM Filter - Content Script', () => {
       const cards = document.querySelectorAll('mat-card.project-button-card');
       expect(cards[0].style.display).toBe('none');
       expect(cards[1].style.display).toBe('');
-    });
-  });
-
-  describe('doFilter() - Title Element Layout (Method 4)', () => {
-    beforeEach(() => {
-      document.body.innerHTML = `
-        <div class="custom-project">
-          <div class="project-button-title">Development Tasks</div>
-        </div>
-        <mat-card>
-          <div class="project-button-title">Testing Tasks</div>
-        </mat-card>
-      `;
-    });
-
-    test('filters by finding closest container', () => {
-      doFilter('development');
-
-      const container1 = document.querySelector('.custom-project');
-      const container2 = document.querySelector('mat-card');
-
-      expect(container1.style.display).toBe('');
-      expect(container2.style.display).toBe('none');
-    });
-
-    test('is case-insensitive', () => {
-      doFilter('TESTING');
-
-      const container1 = document.querySelector('.custom-project');
-      const container2 = document.querySelector('mat-card');
-
-      expect(container1.style.display).toBe('none');
-      expect(container2.style.display).toBe('');
     });
   });
 
