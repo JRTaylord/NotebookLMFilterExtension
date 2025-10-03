@@ -1,4 +1,4 @@
 *.pem
 *.zip
 *.crx
-CLAUDE.md
+node_modules/*

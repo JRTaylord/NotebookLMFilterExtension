@@ -1,3 +1,59 @@
+// State management module
+const PopupState = {
+  filters: [],
+  activeFilter: null,
+
+  getFilters() {
+    return this.filters;
+  },
+
+  setFilters(newFilters) {
+    this.filters = newFilters;
+  },
+
+  getActiveFilter() {
+    return this.activeFilter;
+  },
+
+  setActiveFilter(filter) {
+    this.activeFilter = filter;
+  }
+};
+
+// Core functions (testable)
+function addFilter(filterName, currentFilters) {
+  const trimmed = filterName.trim();
+  if (!trimmed) return currentFilters;
+  if (currentFilters.includes(trimmed)) return currentFilters;
+  return [...currentFilters, trimmed];
+}
+
+function removeFilterFromList(filterName, currentFilters) {
+  return currentFilters.filter(f => f !== filterName);
+}
+
+function toggleActiveFilter(filterName, isChecked, currentActiveFilter) {
+  if (isChecked) {
+    return filterName;
+  } else {
+    return null;
+  }
+}
+
+function sortFilters(filters) {
+  return [...filters].sort();
+}
+
+function validateFilterInput(input) {
+  const trimmed = input.trim();
+  return trimmed.length > 0;
+}
+
+function shouldClearActiveFilter(filterToRemove, currentActiveFilter) {
+  return currentActiveFilter === filterToRemove;
+}
+
+// UI Controller
 document.addEventListener('DOMContentLoaded', async function() {
   // DOM elements
   const filterView = document.getElementById('filterView');
@@ -7,9 +63,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   const confirmBtn = document.getElementById('confirmBtn');
   const filterInput = document.getElementById('filterInput');
   const filterList = document.getElementById('filterList');
-
-  let filters = [];
-  let activeFilter = null;
 
   // Initialize the extension
   await init();
@@ -40,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     filterInput.addEventListener('input', () => {
       const newFilter = filterInput.value.trim();
-      const isValid = newFilter.length;
+      const isValid = validateFilterInput(newFilter);
       confirmBtn.disabled = !isValid;
     })
   }
@@ -48,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   function loadFilters() {
     if (typeof chrome === 'undefined' || !chrome.storage) {
       // Fallback for development/testing
-      filters = ['Family', 'Finance', 'Health', 'Personal', 'Shopping'];
+      PopupState.setFilters(['Family', 'Finance', 'Health', 'Personal', 'Shopping']);
       renderFilters();
       return;
     }
@@ -62,25 +115,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         chrome.storage.local.get(['filters', 'activeFilter'], function(localResult) {
           if (chrome.runtime.lastError) {
             console.error('Failed to load filters from local storage:', chrome.runtime.lastError);
-            filters = [];
+            PopupState.setFilters([]);
           } else {
             if (localResult.filters && localResult.filters.length > 0) {
-              filters = localResult.filters;
+              PopupState.setFilters(localResult.filters);
             } else {
-              filters = [];
+              PopupState.setFilters([]);
             }
-            activeFilter = localResult.activeFilter || null;
+            PopupState.setActiveFilter(localResult.activeFilter || null);
           }
           renderFilters();
         });
       } else {
         // Successfully loaded from sync storage
         if (result.filters && result.filters.length > 0) {
-          filters = result.filters;
+          PopupState.setFilters(result.filters);
         } else {
-          filters = [];
+          PopupState.setFilters([]);
         }
-        activeFilter = result.activeFilter || null;
+        PopupState.setActiveFilter(result.activeFilter || null);
         renderFilters();
       }
     });
@@ -92,8 +145,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     const data = {
-      filters: filters,
-      activeFilter: activeFilter
+      filters: PopupState.getFilters(),
+      activeFilter: PopupState.getActiveFilter()
     };
 
     // Save to sync storage first (syncs across devices)
@@ -116,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   function renderFilters() {
     filterList.innerHTML = '';
 
-    const sortedFilters = [...filters].sort();
+    const sortedFilters = sortFilters(PopupState.getFilters());
 
     sortedFilters.forEach(filter => {
       const filterItem = createFilterItem(filter);
@@ -135,7 +188,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.className = 'filter-checkbox';
-    checkbox.checked = activeFilter === filterName;
+    checkbox.checked = PopupState.getActiveFilter() === filterName;
     checkbox.addEventListener('change', () => toggleFilter(filterName, checkbox.checked, checkbox));
 
     const label = document.createElement('label');
@@ -163,11 +216,12 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
       });
 
-
-      activeFilter = filterName;
+      const newActiveFilter = toggleActiveFilter(filterName, isChecked, PopupState.getActiveFilter());
+      PopupState.setActiveFilter(newActiveFilter);
       applyFilter(filterName);
     } else {
-      activeFilter = null;
+      const newActiveFilter = toggleActiveFilter(filterName, isChecked, PopupState.getActiveFilter());
+      PopupState.setActiveFilter(newActiveFilter);
       clearFilter();
     }
 
@@ -230,9 +284,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   async function removeFilter(filterName) {
-    filters = filters.filter(f => f !== filterName);
-    if (activeFilter === filterName) {
-      activeFilter = null;
+    const newFilters = removeFilterFromList(filterName, PopupState.getFilters());
+    PopupState.setFilters(newFilters);
+
+    if (shouldClearActiveFilter(filterName, PopupState.getActiveFilter())) {
+      PopupState.setActiveFilter(null);
       clearFilter();
     }
     renderFilters();
@@ -246,8 +302,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   function addNewFilter() {
     const newFilter = filterInput.value.trim();
-    if (newFilter && !filters.includes(newFilter)) {
-      filters.push(newFilter);
+    const updatedFilters = addFilter(newFilter, PopupState.getFilters());
+
+    if (updatedFilters !== PopupState.getFilters()) {
+      PopupState.setFilters(updatedFilters);
       try {
         saveFilters();
         renderFilters();
@@ -281,9 +339,22 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   function hideFilterListIfEmpty() {
     const filterList = document.getElementById('filterList');
-    console.log('hiding', !filters.length);
+    console.log('hiding', !PopupState.getFilters().length);
 
-    console.log('filters', filters);
-    filterList.classList.toggle('hidden', !filters.length);
+    console.log('filters', PopupState.getFilters());
+    filterList.classList.toggle('hidden', !PopupState.getFilters().length);
   }
 });
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    PopupState,
+    addFilter,
+    removeFilterFromList,
+    toggleActiveFilter,
+    sortFilters,
+    validateFilterInput,
+    shouldClearActiveFilter
+  };
+}

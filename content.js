@@ -1,13 +1,15 @@
 // Listen for messages from popup
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'applyFilter') {
-    filterNotebooks(message.filter);
-  } else if (message.action === 'clearFilter') {
-    showAllNotebooks();
-  }
+if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === 'applyFilter') {
+      filterNotebooks(message.filter);
+    } else if (message.action === 'clearFilter') {
+      showAllNotebooks();
+    }
 
-  sendResponse({ success: true, message: 'Content script received the message' });
-});
+    sendResponse({ success: true, message: 'Content script received the message' });
+  });
+}
 
 function filterNotebooks(filterKeyword) {
   // Wait for DOM to be ready before trying to filter
@@ -64,25 +66,6 @@ function doFilter(filterKeyword) {
         }
       });
     }
-
-    // Method 4: Filter by looking for title elements directly
-    const titleElements = document.querySelectorAll('.project-button-title, .featured-project-title');
-    if (titleElements.length > 0 && !foundElements) {
-      foundElements = true;
-
-      titleElements.forEach(titleElement => {
-        const titleText = titleElement.textContent.toLowerCase();
-        // Find the closest parent container that represents the notebook card
-        const container = titleElement.closest('mat-card') ||
-          titleElement.closest('project-button') ||
-          titleElement.closest('[class*="project"]');
-
-        if (container) {
-          container.style.display = titleText.includes(keyword) ? '' : 'none';
-        }
-      });
-    }
-
   } catch (error) {
     console.error('Chrome Extension: Error during filtering:', error);
   }
@@ -123,4 +106,9 @@ function showAllNotebooks() {
   } catch (error) {
     console.error('Chrome Extension: Error during show all:', error);
   }
+}
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { doFilter, showAllNotebooks, filterNotebooks };
 }
