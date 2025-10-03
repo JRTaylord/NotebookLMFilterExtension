@@ -107,12 +107,12 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Try to load from sync storage first (syncs across devices)
-    chrome.storage.sync.get(['filters', 'activeFilter'], function(result) {
+    chrome.storage.sync.get(['filters'], function(result) {
       if (chrome.runtime.lastError) {
         console.warn('Failed to load from sync storage, trying local:', chrome.runtime.lastError);
 
         // Fall back to local storage if sync fails
-        chrome.storage.local.get(['filters', 'activeFilter'], function(localResult) {
+        chrome.storage.local.get(['filters'], function(localResult) {
           if (chrome.runtime.lastError) {
             console.error('Failed to load filters from local storage:', chrome.runtime.lastError);
             PopupState.setFilters([]);
@@ -122,7 +122,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             } else {
               PopupState.setFilters([]);
             }
-            PopupState.setActiveFilter(localResult.activeFilter || null);
+            // Always start with no active filter
+            PopupState.setActiveFilter(null);
           }
           renderFilters();
         });
@@ -133,7 +134,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         } else {
           PopupState.setFilters([]);
         }
-        PopupState.setActiveFilter(result.activeFilter || null);
+        // Always start with no active filter
+        PopupState.setActiveFilter(null);
         renderFilters();
       }
     });
@@ -145,8 +147,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     const data = {
-      filters: PopupState.getFilters(),
-      activeFilter: PopupState.getActiveFilter()
+      filters: PopupState.getFilters()
+      // activeFilter is not saved to prevent confusion on popup reload
     };
 
     // Save to sync storage first (syncs across devices)
