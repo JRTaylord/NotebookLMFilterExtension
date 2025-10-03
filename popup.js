@@ -182,11 +182,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
       });
 
-      const newActiveFilter = toggleActiveFilter(filterName, isChecked, PopupState.getActiveFilter());
+      const newActiveFilter = toggleActiveFilter(filterName, isChecked);
       PopupState.setActiveFilter(newActiveFilter);
       applyFilter(filterName);
     } else {
-      const newActiveFilter = toggleActiveFilter(filterName, isChecked, PopupState.getActiveFilter());
+      const newActiveFilter = toggleActiveFilter(filterName, isChecked);
       PopupState.setActiveFilter(newActiveFilter);
       clearFilter();
     }

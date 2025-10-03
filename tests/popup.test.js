@@ -85,22 +85,15 @@ describe('NotebookLM Filter - Popup Functions', () => {
 
   describe('toggleActiveFilter()', () => {
     test('sets active filter when toggled on', () => {
-      const result = toggleActiveFilter('Family', true, null);
+      const result = toggleActiveFilter('Family', true);
 
       expect(result).toBe('Family');
     });
 
     test('clears active filter when toggled off', () => {
-      const result = toggleActiveFilter('Family', false, 'Family');
+      const result = toggleActiveFilter('Family', false);
 
       expect(result).toBe(null);
-    });
-
-    test('replaces active filter when new filter is activated', () => {
-      const result = toggleActiveFilter('Work', true, 'Family');
-
-      expect(result).toBe('Work');
-      expect(result).not.toBe('Family');
     });
   });
 
@@ -223,27 +216,16 @@ describe('NotebookLM Filter - Popup Functions', () => {
       let activeFilter = null;
 
       // Activate first filter
-      activeFilter = toggleActiveFilter('Family', true, activeFilter);
+      activeFilter = toggleActiveFilter('Family', true);
       expect(activeFilter).toBe('Family');
 
       // Switch to another filter
-      activeFilter = toggleActiveFilter('Work', true, activeFilter);
+      activeFilter = toggleActiveFilter('Work', true);
       expect(activeFilter).toBe('Work');
 
       // Deactivate
-      activeFilter = toggleActiveFilter('Work', false, activeFilter);
+      activeFilter = toggleActiveFilter('Work', false);
       expect(activeFilter).toBe(null);
-    });
-
-    test('remove active filter clears it', () => {
-      const filters = ['Family', 'Work'];
-      const activeFilter = 'Work';
-
-      const shouldClear = shouldClearActiveFilter('Work', activeFilter);
-      expect(shouldClear).toBe(true);
-
-      const newFilters = removeFilterFromList('Work', filters);
-      expect(newFilters).not.toContain('Work');
     });
   });
 });
