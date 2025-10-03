@@ -1,3 +1,27 @@
+// Clear active filter when page loads (prevents confusion on page refresh)
+// This runs only on NotebookLM pages as defined in manifest.json
+if (typeof chrome !== 'undefined' && chrome.storage) {
+  // Clear the activeFilter from storage
+  chrome.storage.sync.set({ activeFilter: null }, function() {
+    if (chrome.runtime.lastError) {
+      console.warn('Failed to clear activeFilter in sync storage:', chrome.runtime.lastError);
+    }
+  });
+
+  chrome.storage.local.set({ activeFilter: null }, function() {
+    if (chrome.runtime.lastError) {
+      console.warn('Failed to clear activeFilter in local storage:', chrome.runtime.lastError);
+    }
+  });
+
+  // Also visually clear any applied filters on the page
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', showAllNotebooks);
+  } else {
+    showAllNotebooks();
+  }
+}
+
 // Listen for messages from popup
 if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
