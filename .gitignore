@@ -2,3 +2,4 @@
 *.zip
 *.crx
 node_modules/*
+CLAUDE.md
