@@ -32,7 +32,7 @@ def create_extension_zip():
     # Create output filename with timestamp
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     output_filename = f'NotebookLMFilterExtension.zip'
-    output_path = script_dir / output_filename
+    output_path = script_dir.parent / output_filename
 
     print(f"Creating extension zip: {output_filename}")
 
