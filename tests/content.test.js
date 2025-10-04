@@ -6,13 +6,17 @@
 global.chrome = {
   runtime: {
     onMessage: {
-      addListener: jest.fn()
-    }
-  }
+      addListener: jest.fn(),
+    },
+  },
 };
 
 // Import functions from content script
-const { doFilter, showAllNotebooks, filterNotebooks } = require('../content.js');
+const {
+  doFilter,
+  showAllNotebooks,
+  filterNotebooks,
+} = require('../content.js');
 
 describe('NotebookLM Filter - Content Script', () => {
   beforeEach(() => {
@@ -20,7 +24,7 @@ describe('NotebookLM Filter - Content Script', () => {
     document.body.innerHTML = '';
 
     // Mock console.error to avoid noise in tests
-    jest.spyOn(console, 'error').mockImplementation(() => { });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -77,7 +81,7 @@ describe('NotebookLM Filter - Content Script', () => {
       doFilter('nonexistent');
 
       const rows = document.querySelectorAll('tbody tr[mat-row]');
-      rows.forEach(row => {
+      rows.forEach((row) => {
         expect(row.style.display).toBe('none');
       });
     });

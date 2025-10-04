@@ -9,7 +9,7 @@ const {
   toggleActiveFilter,
   sortFilters,
   validateFilterInput,
-  shouldClearActiveFilter
+  shouldClearActiveFilter,
 } = require('../popup.js');
 
 describe('NotebookLM Filter - Popup Functions', () => {

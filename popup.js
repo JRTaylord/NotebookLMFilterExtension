@@ -17,7 +17,7 @@ const PopupState = {
 
   setActiveFilter(filter) {
     this.activeFilter = filter;
-  }
+  },
 };
 
 // Core functions (testable)
@@ -31,7 +31,7 @@ function addFilter(filterName, currentFilters) {
 }
 
 function removeFilterFromList(filterName, currentFilters) {
-  return currentFilters.filter(f => f !== filterName);
+  return currentFilters.filter((f) => f !== filterName);
 }
 
 function toggleActiveFilter(filterName, isChecked) {
@@ -56,7 +56,7 @@ function shouldClearActiveFilter(filterToRemove, currentActiveFilter) {
 }
 
 // UI Controller
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
   // DOM elements
   const filterView = document.getElementById('filterView');
   const addFilterView = document.getElementById('addFilterView');
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     backBtn.addEventListener('click', showFilterView);
     confirmBtn.addEventListener('click', addNewFilter);
 
-    filterInput.addEventListener('keypress', function(e) {
+    filterInput.addEventListener('keypress', function (e) {
       if (e.key === 'Enter') {
         addNewFilter();
       }
@@ -97,23 +97,29 @@ document.addEventListener('DOMContentLoaded', async function() {
       const newFilter = filterInput.value.trim();
       const isValid = validateFilterInput(newFilter);
       confirmBtn.disabled = !isValid;
-    })
+    });
   }
 
   function loadFilters() {
     if (typeof FilterState === 'undefined') {
       // Fallback for development/testing
-      PopupState.setFilters(['Family', 'Finance', 'Health', 'Personal', 'Shopping']);
+      PopupState.setFilters([
+        'Family',
+        'Finance',
+        'Health',
+        'Personal',
+        'Shopping',
+      ]);
       renderFilters();
       return;
     }
 
     // Load filters list
-    FilterState.getFilters(function(filters) {
+    FilterState.getFilters(function (filters) {
       PopupState.setFilters(filters);
 
       // Load active filter
-      FilterState.getActiveFilter(function(activeFilter) {
+      FilterState.getActiveFilter(function (activeFilter) {
         PopupState.setActiveFilter(activeFilter);
         renderFilters();
       });
@@ -137,7 +143,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     const sortedFilters = sortFilters(PopupState.getFilters());
 
-    sortedFilters.forEach(filter => {
+    sortedFilters.forEach((filter) => {
       const filterItem = createFilterItem(filter);
       filterList.appendChild(filterItem);
     });
@@ -155,7 +161,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     checkbox.type = 'checkbox';
     checkbox.className = 'filter-checkbox';
     checkbox.checked = PopupState.getActiveFilter() === filterName;
-    checkbox.addEventListener('change', () => toggleFilter(filterName, checkbox.checked, checkbox));
+    checkbox.addEventListener('change', () =>
+      toggleFilter(filterName, checkbox.checked, checkbox)
+    );
 
     const label = document.createElement('label');
     label.textContent = filterName;
@@ -176,7 +184,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   async function toggleFilter(filterName, isChecked, sourceCheckbox) {
     if (isChecked) {
       const checkboxes = document.querySelectorAll('.filter-checkbox');
-      checkboxes.forEach(cb => {
+      checkboxes.forEach((cb) => {
         if (cb !== sourceCheckbox) {
           cb.checked = false;
         }
@@ -199,7 +207,7 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   function applyFilter(filterName) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       if (!tabs[0]) {
         console.error('No active tab found');
         return;
@@ -213,44 +221,65 @@ document.addEventListener('DOMContentLoaded', async function() {
         return;
       }
 
-      chrome.tabs.sendMessage(tab.id, {
-        action: 'applyFilter',
-        filter: filterName
-      }, function(response) {
-        if (chrome.runtime.lastError) {
-          console.error('Popup: Message failed:', chrome.runtime.lastError.message);
+      chrome.tabs.sendMessage(
+        tab.id,
+        {
+          action: 'applyFilter',
+          filter: filterName,
+        },
+        function (response) {
+          if (chrome.runtime.lastError) {
+            console.error(
+              'Popup: Message failed:',
+              chrome.runtime.lastError.message
+            );
 
-          // If content script isn't loaded, try to inject it
-          if (chrome.runtime.lastError.message.includes('Could not establish connection')) {
-            injectContentScript(tab.id, () => {
-              // Retry sending the message
-              chrome.tabs.sendMessage(tab.id, {
-                action: 'applyFilter',
-                filter: filterName
+            // If content script isn't loaded, try to inject it
+            if (
+              chrome.runtime.lastError.message.includes(
+                'Could not establish connection'
+              )
+            ) {
+              injectContentScript(tab.id, () => {
+                // Retry sending the message
+                chrome.tabs.sendMessage(tab.id, {
+                  action: 'applyFilter',
+                  filter: filterName,
+                });
               });
-            });
+            }
           }
         }
-      });
+      );
     });
   }
 
   function clearFilter() {
-    chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
       if (!tabs[0]) return;
 
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: 'clearFilter'
-      }, function(response) {
-        if (chrome.runtime.lastError) {
-          console.error('Clear filter message failed:', chrome.runtime.lastError.message);
+      chrome.tabs.sendMessage(
+        tabs[0].id,
+        {
+          action: 'clearFilter',
+        },
+        function (response) {
+          if (chrome.runtime.lastError) {
+            console.error(
+              'Clear filter message failed:',
+              chrome.runtime.lastError.message
+            );
+          }
         }
-      });
+      );
     });
   }
 
   async function removeFilter(filterName) {
-    const newFilters = removeFilterFromList(filterName, PopupState.getFilters());
+    const newFilters = removeFilterFromList(
+      filterName,
+      PopupState.getFilters()
+    );
     PopupState.setFilters(newFilters);
 
     if (shouldClearActiveFilter(filterName, PopupState.getActiveFilter())) {
@@ -312,8 +341,12 @@ document.addEventListener('DOMContentLoaded', async function() {
   }
 
   // Listen for storage changes to sync activeFilter from content script or other sources
-  if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
-    chrome.storage.onChanged.addListener(function(changes, areaName) {
+  if (
+    typeof chrome !== 'undefined' &&
+    chrome.storage &&
+    chrome.storage.onChanged
+  ) {
+    chrome.storage.onChanged.addListener(function (changes, areaName) {
       // React to activeFilter changes
       if (changes.activeFilter) {
         const newActiveFilter = changes.activeFilter.newValue;
@@ -321,7 +354,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Update UI checkboxes to reflect the change
         const checkboxes = document.querySelectorAll('.filter-checkbox');
-        checkboxes.forEach(cb => {
+        checkboxes.forEach((cb) => {
           const label = cb.nextElementSibling;
           if (label && label.textContent === newActiveFilter) {
             cb.checked = true;
@@ -343,6 +376,6 @@ if (typeof module !== 'undefined' && module.exports) {
     toggleActiveFilter,
     sortFilters,
     validateFilterInput,
-    shouldClearActiveFilter
+    shouldClearActiveFilter,
   };
 }

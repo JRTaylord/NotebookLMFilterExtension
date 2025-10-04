@@ -1,7 +1,7 @@
 // Clear active filter when page loads (prevents confusion on page refresh)
 // This runs only on NotebookLM pages as defined in manifest.json
 if (typeof FilterState !== 'undefined') {
-  FilterState.clearActiveFilter(function() {
+  FilterState.clearActiveFilter(function () {
     // After clearing, visually clear any applied filters on the page
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', showAllNotebooks);
@@ -23,9 +23,12 @@ if (typeof FilterState !== 'undefined') {
 function setupMutationObserver() {
   const observer = new MutationObserver((mutations) => {
     // Only respond to structural DOM changes (nodes added/removed), not style changes
-    const hasStructuralChanges = mutations.some(mutation => {
+    const hasStructuralChanges = mutations.some((mutation) => {
       // Ignore our own style attribute changes
-      if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+      if (
+        mutation.type === 'attributes' &&
+        mutation.attributeName === 'style'
+      ) {
         return false;
       }
       // Only care about nodes being added or removed (view switches, content changes)
@@ -42,8 +45,8 @@ function setupMutationObserver() {
   const targetNode = document.body;
   if (targetNode) {
     observer.observe(targetNode, {
-      childList: true,      // Watch for nodes being added/removed
-      subtree: true         // Watch all descendants
+      childList: true, // Watch for nodes being added/removed
+      subtree: true, // Watch all descendants
       // Note: NOT watching attributes, so our style changes won't trigger the observer
     });
   }
@@ -53,7 +56,7 @@ function setupMutationObserver() {
 function reapplyActiveFilter() {
   if (typeof FilterState === 'undefined') return;
 
-  FilterState.getActiveFilter(function(activeFilter) {
+  FilterState.getActiveFilter(function (activeFilter) {
     if (activeFilter) {
       filterNotebooks(activeFilter);
     }
@@ -68,8 +71,12 @@ if (document.readyState === 'loading') {
 }
 
 // Listen for storage changes to sync activeFilter across contexts
-if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
-  chrome.storage.onChanged.addListener(function(changes, areaName) {
+if (
+  typeof chrome !== 'undefined' &&
+  chrome.storage &&
+  chrome.storage.onChanged
+) {
+  chrome.storage.onChanged.addListener(function (changes, areaName) {
     // React to activeFilter changes from popup or other sources
     if (changes.activeFilter) {
       const newActiveFilter = changes.activeFilter.newValue;
@@ -86,7 +93,11 @@ if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged)
 }
 
 // Listen for messages from popup
-if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
+if (
+  typeof chrome !== 'undefined' &&
+  chrome.runtime &&
+  chrome.runtime.onMessage
+) {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'applyFilter') {
       filterNotebooks(message.filter);
@@ -94,14 +105,19 @@ if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage)
       showAllNotebooks();
     }
 
-    sendResponse({ success: true, message: 'Content script received the message' });
+    sendResponse({
+      success: true,
+      message: 'Content script received the message',
+    });
   });
 }
 
 function filterNotebooks(filterKeyword) {
   // Wait for DOM to be ready before trying to filter
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => doFilter(filterKeyword));
+    document.addEventListener('DOMContentLoaded', () =>
+      doFilter(filterKeyword)
+    );
   } else {
     doFilter(filterKeyword);
   }
@@ -117,7 +133,7 @@ function doFilter(filterKeyword) {
     if (tableRows.length > 0) {
       foundElements = true;
 
-      tableRows.forEach(row => {
+      tableRows.forEach((row) => {
         const titleCell = row.querySelector('td[mat-cell]');
         if (titleCell) {
           const titleText = titleCell.textContent.toLowerCase();
@@ -131,8 +147,10 @@ function doFilter(filterKeyword) {
     if (projectButtons.length > 0) {
       foundElements = true;
 
-      projectButtons.forEach(button => {
-        const titleElement = button.querySelector('.project-button-title, .featured-project-title');
+      projectButtons.forEach((button) => {
+        const titleElement = button.querySelector(
+          '.project-button-title, .featured-project-title'
+        );
         if (titleElement) {
           const titleText = titleElement.textContent.toLowerCase();
           button.style.display = titleText.includes(keyword) ? '' : 'none';
@@ -145,8 +163,10 @@ function doFilter(filterKeyword) {
     if (matCards.length > 0) {
       foundElements = true;
 
-      matCards.forEach(card => {
-        const titleElement = card.querySelector('.project-button-title, .featured-project-title');
+      matCards.forEach((card) => {
+        const titleElement = card.querySelector(
+          '.project-button-title, .featured-project-title'
+        );
         if (titleElement) {
           const titleText = titleElement.textContent.toLowerCase();
           card.style.display = titleText.includes(keyword) ? '' : 'none';
@@ -162,26 +182,29 @@ function showAllNotebooks() {
   try {
     // Method 1: Show all table rows
     const tableRows = document.querySelectorAll('tbody tr[mat-row]');
-    tableRows.forEach(row => {
+    tableRows.forEach((row) => {
       row.style.display = '';
     });
 
     // Method 2: Show all project buttons
     const projectButtons = document.querySelectorAll('project-button');
-    projectButtons.forEach(button => {
+    projectButtons.forEach((button) => {
       button.style.display = '';
     });
 
     // Method 3: Show all project cards
     const matCards = document.querySelectorAll('mat-card.project-button-card');
-    matCards.forEach(card => {
+    matCards.forEach((card) => {
       card.style.display = '';
     });
 
     // Method 4: Show all elements that might have been hidden by title-based filtering
-    const titleElements = document.querySelectorAll('.project-button-title, .featured-project-title');
-    titleElements.forEach(titleElement => {
-      const container = titleElement.closest('mat-card') ||
+    const titleElements = document.querySelectorAll(
+      '.project-button-title, .featured-project-title'
+    );
+    titleElements.forEach((titleElement) => {
+      const container =
+        titleElement.closest('mat-card') ||
         titleElement.closest('project-button') ||
         titleElement.closest('[class*="project"]');
 
@@ -189,7 +212,6 @@ function showAllNotebooks() {
         container.style.display = '';
       }
     });
-
   } catch (error) {
     console.error('Chrome Extension: Error during show all:', error);
   }

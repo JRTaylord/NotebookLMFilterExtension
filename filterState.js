@@ -15,14 +15,20 @@ const FilterState = {
     }
 
     // Try sync storage first
-    chrome.storage.sync.get(['activeFilter'], function(result) {
+    chrome.storage.sync.get(['activeFilter'], function (result) {
       if (chrome.runtime.lastError) {
-        console.warn('Failed to load activeFilter from sync storage, trying local:', chrome.runtime.lastError);
+        console.warn(
+          'Failed to load activeFilter from sync storage, trying local:',
+          chrome.runtime.lastError
+        );
 
         // Fall back to local storage
-        chrome.storage.local.get(['activeFilter'], function(localResult) {
+        chrome.storage.local.get(['activeFilter'], function (localResult) {
           if (chrome.runtime.lastError) {
-            console.error('Failed to load activeFilter from local storage:', chrome.runtime.lastError);
+            console.error(
+              'Failed to load activeFilter from local storage:',
+              chrome.runtime.lastError
+            );
             callback(null);
           } else {
             callback(localResult.activeFilter || null);
@@ -48,16 +54,22 @@ const FilterState = {
     const data = { activeFilter: filter };
 
     // Save to sync storage first
-    chrome.storage.sync.set(data, function() {
+    chrome.storage.sync.set(data, function () {
       if (chrome.runtime.lastError) {
-        console.warn('Failed to save activeFilter to sync storage:', chrome.runtime.lastError);
+        console.warn(
+          'Failed to save activeFilter to sync storage:',
+          chrome.runtime.lastError
+        );
       }
     });
 
     // Also save to local storage as backup
-    chrome.storage.local.set(data, function() {
+    chrome.storage.local.set(data, function () {
       if (chrome.runtime.lastError) {
-        console.error('Failed to save activeFilter to local storage:', chrome.runtime.lastError);
+        console.error(
+          'Failed to save activeFilter to local storage:',
+          chrome.runtime.lastError
+        );
       }
       if (callback) callback();
     });
@@ -82,14 +94,20 @@ const FilterState = {
     }
 
     // Try sync storage first
-    chrome.storage.sync.get(['filters'], function(result) {
+    chrome.storage.sync.get(['filters'], function (result) {
       if (chrome.runtime.lastError) {
-        console.warn('Failed to load filters from sync storage, trying local:', chrome.runtime.lastError);
+        console.warn(
+          'Failed to load filters from sync storage, trying local:',
+          chrome.runtime.lastError
+        );
 
         // Fall back to local storage
-        chrome.storage.local.get(['filters'], function(localResult) {
+        chrome.storage.local.get(['filters'], function (localResult) {
           if (chrome.runtime.lastError) {
-            console.error('Failed to load filters from local storage:', chrome.runtime.lastError);
+            console.error(
+              'Failed to load filters from local storage:',
+              chrome.runtime.lastError
+            );
             callback([]);
           } else {
             callback(localResult.filters || []);
@@ -115,20 +133,26 @@ const FilterState = {
     const data = { filters: filters };
 
     // Save to sync storage first
-    chrome.storage.sync.set(data, function() {
+    chrome.storage.sync.set(data, function () {
       if (chrome.runtime.lastError) {
-        console.warn('Failed to save filters to sync storage:', chrome.runtime.lastError);
+        console.warn(
+          'Failed to save filters to sync storage:',
+          chrome.runtime.lastError
+        );
       }
     });
 
     // Also save to local storage as backup
-    chrome.storage.local.set(data, function() {
+    chrome.storage.local.set(data, function () {
       if (chrome.runtime.lastError) {
-        console.error('Failed to save filters to local storage:', chrome.runtime.lastError);
+        console.error(
+          'Failed to save filters to local storage:',
+          chrome.runtime.lastError
+        );
       }
       if (callback) callback();
     });
-  }
+  },
 };
 
 // Export for both browser extension and Node.js (testing)
