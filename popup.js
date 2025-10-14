@@ -233,21 +233,6 @@ document.addEventListener('DOMContentLoaded', async function () {
               'Popup: Message failed:',
               chrome.runtime.lastError.message
             );
-
-            // If content script isn't loaded, try to inject it
-            if (
-              chrome.runtime.lastError.message.includes(
-                'Could not establish connection'
-              )
-            ) {
-              injectContentScript(tab.id, () => {
-                // Retry sending the message
-                chrome.tabs.sendMessage(tab.id, {
-                  action: 'applyFilter',
-                  filter: filterName,
-                });
-              });
-            }
           }
         }
       );
@@ -334,9 +319,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   function hideFilterListIfEmpty() {
     const filterList = document.getElementById('filterList');
-    console.log('hiding', !PopupState.getFilters().length);
 
-    console.log('filters', PopupState.getFilters());
     filterList.classList.toggle('hidden', !PopupState.getFilters().length);
   }
 
