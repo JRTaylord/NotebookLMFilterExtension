@@ -2,6 +2,8 @@
 
 A Chrome extension that filters NotebookLM notebooks by keyword.
 
+**[Install from Chrome Web Store](https://chromewebstore.google.com/detail/notebooklm-filter/kidkdnibgnohhaomibnnidaiaeoahkbb)**
+
 ## Setup
 
 1. Clone the repository:
