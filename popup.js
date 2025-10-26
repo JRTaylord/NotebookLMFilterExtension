@@ -110,7 +110,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         'Personal',
         'Shopping',
       ]);
-      renderFilters();
       return;
     }
 
@@ -121,7 +120,6 @@ document.addEventListener('DOMContentLoaded', async function () {
       // Load active filter
       FilterState.getActiveFilter(function (activeFilter) {
         PopupState.setActiveFilter(activeFilter);
-        renderFilters();
       });
     });
   }
