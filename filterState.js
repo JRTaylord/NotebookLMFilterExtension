@@ -132,8 +132,3 @@ const FilterState = {
     });
   },
 };
-
-// Export for both browser extension and Node.js (testing)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { FilterState };
-}
