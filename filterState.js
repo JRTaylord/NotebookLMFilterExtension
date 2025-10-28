@@ -13,17 +13,28 @@ const FilterState = {
       callback(null);
       return;
     }
-
-    // retrieve from local storage
-    chrome.storage.local.get(['activeFilter'], function (localResult) {
+    // Try sync storage first
+    chrome.storage.sync.get(['activeFilter'], function (result) {
       if (chrome.runtime.lastError) {
-        console.error(
-          'Failed to load activeFilter from local storage:',
+        console.warn(
+          'Failed to load activeFilter from sync storage, trying local:',
           chrome.runtime.lastError
         );
-        callback(null);
+
+        // Fall back to local storage
+        chrome.storage.local.get(['activeFilter'], function (localResult) {
+          if (chrome.runtime.lastError) {
+            console.error(
+              'Failed to load activeFilter from local storage:',
+              chrome.runtime.lastError
+            );
+            callback(null);
+          } else {
+            callback(localResult.activeFilter || null);
+          }
+        });
       } else {
-        callback(localResult.activeFilter || null);
+        callback(result.activeFilter || null);
       }
     });
   },
@@ -41,7 +52,17 @@ const FilterState = {
 
     const data = { activeFilter: filter };
 
-    // Save to local storage
+    // Save to sync storage first
+    chrome.storage.sync.set(data, function () {
+      if (chrome.runtime.lastError) {
+        console.warn(
+          'Failed to save activeFilter to sync storage:',
+          chrome.runtime.lastError
+        );
+      }
+    });
+
+    // Also save to local storage as backup
     chrome.storage.local.set(data, function () {
       if (chrome.runtime.lastError) {
         console.error(
@@ -132,8 +153,3 @@ const FilterState = {
     });
   },
 };
-
-// Export for both browser extension and Node.js (testing)
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { FilterState };
-}

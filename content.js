@@ -1,10 +1,14 @@
-// Clear active filter when page loads (prevents confusion on page refresh)
+// Pull and apply active filter when page loads (prevents confusion on page refresh)
 // This runs only on NotebookLM pages as defined in manifest.json
 if (typeof FilterState !== 'undefined') {
-  FilterState.clearActiveFilter(function () {
-    // After clearing, visually clear any applied filters on the page
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', showAllNotebooks);
+  FilterState.getActiveFilter(function (activeFilter) {
+    // apply filter if present
+    if (document.readyState === 'loading' && activeFilter) {
+      document.addEventListener('DOMContentLoaded', () => {
+        filterNotebooks(activeFilter);
+      });
+    } else if (activeFilter) {
+      filterNotebooks(activeFilter);
     } else {
       showAllNotebooks();
     }

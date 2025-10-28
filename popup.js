@@ -71,10 +71,11 @@ document.addEventListener('DOMContentLoaded', async function () {
 
   async function init() {
     try {
-      loadFilters();
-      renderFilters();
-      setupEventListeners();
-      showFilterView();
+      loadFilters(() => {
+        renderFilters();
+        setupEventListeners();
+        showFilterView();
+      });
     } catch (error) {
       console.error('Failed to initialize:', error);
       // Show error or fallback
@@ -100,7 +101,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
-  function loadFilters() {
+  function loadFilters(callback) {
     if (typeof FilterState === 'undefined') {
       // Fallback for development/testing
       PopupState.setFilters([
@@ -110,7 +111,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         'Personal',
         'Shopping',
       ]);
-      renderFilters();
+      callback();
       return;
     }
 
@@ -121,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       // Load active filter
       FilterState.getActiveFilter(function (activeFilter) {
         PopupState.setActiveFilter(activeFilter);
-        renderFilters();
+        callback();
       });
     });
   }
