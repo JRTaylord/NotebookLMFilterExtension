@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "types": ["chrome"],
+    "checkJs": false,
+    "module": "none",
+    "moduleResolution": "node"
+  },
+  "exclude": ["node_modules"]
+}
