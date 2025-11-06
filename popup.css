@@ -377,6 +377,82 @@ body {
   align-self: flex-start;
 }
 
+/* Settings section styling */
+.settings-section {
+  margin-bottom: 16px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--chrome-outline-variant);
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  transition: background-color 0.2s ease;
+  border-radius: 8px;
+}
+
+.setting-item:hover {
+  background: var(--chrome-surface-container);
+}
+
+.setting-checkbox {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--chrome-outline);
+  border-radius: 3px;
+  margin-right: 12px;
+  cursor: pointer;
+  position: relative;
+  background: var(--chrome-surface);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.setting-checkbox:hover {
+  border-color: var(--chrome-primary);
+}
+
+.setting-checkbox:checked {
+  background: var(--chrome-primary);
+  border-color: var(--chrome-primary);
+}
+
+.setting-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.setting-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  .setting-checkbox:focus {
+    box-shadow: 0 0 0 2px rgba(174, 203, 250, 0.2);
+  }
+}
+
+.setting-label {
+  flex: 1;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.4;
+  padding: 0;
+  font-weight: 400;
+  cursor: pointer;
+  user-select: none;
+}
+
 /* Ripple effect simulation */
 @keyframes ripple {
   0% {

@@ -2,6 +2,7 @@
 const PopupState = {
   filters: [],
   activeFilter: null,
+  hideFeatured: false,
 
   getFilters() {
     return this.filters;
@@ -17,6 +18,14 @@ const PopupState = {
 
   setActiveFilter(filter) {
     this.activeFilter = filter;
+  },
+
+  getHideFeatured() {
+    return this.hideFeatured;
+  },
+
+  setHideFeatured(hide) {
+    this.hideFeatured = hide;
   },
 };
 
@@ -65,6 +74,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   const confirmBtn = document.getElementById('confirmBtn');
   const filterInput = document.getElementById('filterInput');
   const filterList = document.getElementById('filterList');
+  const hideFeaturedCheckbox = document.getElementById('hideFeaturedCheckbox');
 
   // Initialize the extension
   await init();
@@ -99,6 +109,10 @@ document.addEventListener('DOMContentLoaded', async function () {
       const isValid = validateFilterInput(newFilter);
       confirmBtn.disabled = !isValid;
     });
+
+    hideFeaturedCheckbox.addEventListener('change', () => {
+      toggleHideFeatured(hideFeaturedCheckbox.checked);
+    });
   }
 
   function loadFilters(callback) {
@@ -111,6 +125,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         'Personal',
         'Shopping',
       ]);
+      PopupState.setHideFeatured(false);
       callback();
       return;
     }
@@ -122,7 +137,13 @@ document.addEventListener('DOMContentLoaded', async function () {
       // Load active filter
       FilterState.getActiveFilter(function (activeFilter) {
         PopupState.setActiveFilter(activeFilter);
-        callback();
+
+        // Load hideFeatured setting
+        FilterState.getHideFeatured(function (hideFeatured) {
+          PopupState.setHideFeatured(hideFeatured);
+          hideFeaturedCheckbox.checked = hideFeatured;
+          callback();
+        });
       });
     });
   }
@@ -137,6 +158,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
     // Save active filter
     FilterState.setActiveFilter(PopupState.getActiveFilter());
+
+    // Save hideFeatured setting
+    FilterState.setHideFeatured(PopupState.getHideFeatured());
   }
 
   function renderFilters() {
@@ -259,6 +283,48 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
       );
     });
+  }
+
+  function toggleHideFeatured(isChecked) {
+    PopupState.setHideFeatured(isChecked);
+
+    try {
+      saveFilters();
+
+      // Send message to content script to apply the setting
+      chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+        if (!tabs[0]) {
+          console.error('No active tab found');
+          return;
+        }
+
+        const tab = tabs[0];
+
+        // Check if we're on the right domain
+        if (!tab.url.includes('notebooklm.google.com')) {
+          console.warn('Not on NotebookLM domain');
+          return;
+        }
+
+        chrome.tabs.sendMessage(
+          tab.id,
+          {
+            action: 'toggleHideFeatured',
+            hideFeatured: isChecked,
+          },
+          function (response) {
+            if (chrome.runtime.lastError) {
+              console.error(
+                'Toggle hide featured message failed:',
+                chrome.runtime.lastError.message
+              );
+            }
+          }
+        );
+      });
+    } catch (error) {
+      console.error('Failed to save hideFeatured setting:', error);
+    }
   }
 
   async function removeFilter(filterName) {

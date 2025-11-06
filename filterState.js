@@ -152,4 +152,75 @@ const FilterState = {
       if (callback) callback();
     });
   },
+
+  /**
+   * Get the hideFeatured setting from storage
+   * @param {function} callback - Called with (hideFeatured) where hideFeatured is boolean
+   */
+  getHideFeatured(callback) {
+    if (typeof chrome === 'undefined' || !chrome.storage) {
+      callback(false);
+      return;
+    }
+
+    // Try sync storage first
+    chrome.storage.sync.get(['hideFeatured'], function (result) {
+      if (chrome.runtime.lastError) {
+        console.warn(
+          'Failed to load hideFeatured from sync storage, trying local:',
+          chrome.runtime.lastError
+        );
+
+        // Fall back to local storage
+        chrome.storage.local.get(['hideFeatured'], function (localResult) {
+          if (chrome.runtime.lastError) {
+            console.error(
+              'Failed to load hideFeatured from local storage:',
+              chrome.runtime.lastError
+            );
+            callback(false);
+          } else {
+            callback(localResult.hideFeatured || false);
+          }
+        });
+      } else {
+        callback(result.hideFeatured || false);
+      }
+    });
+  },
+
+  /**
+   * Set the hideFeatured setting in storage
+   * @param {boolean} hideFeatured - Whether to hide featured notebooks
+   * @param {function} callback - Optional callback when complete
+   */
+  setHideFeatured(hideFeatured, callback) {
+    if (typeof chrome === 'undefined' || !chrome.storage) {
+      if (callback) callback();
+      return;
+    }
+
+    const data = { hideFeatured: hideFeatured };
+
+    // Save to sync storage first
+    chrome.storage.sync.set(data, function () {
+      if (chrome.runtime.lastError) {
+        console.warn(
+          'Failed to save hideFeatured to sync storage:',
+          chrome.runtime.lastError
+        );
+      }
+    });
+
+    // Also save to local storage as backup
+    chrome.storage.local.set(data, function () {
+      if (chrome.runtime.lastError) {
+        console.error(
+          'Failed to save hideFeatured to local storage:',
+          chrome.runtime.lastError
+        );
+      }
+      if (callback) callback();
+    });
+  },
 };

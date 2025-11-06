@@ -2,16 +2,31 @@
 // This runs only on NotebookLM pages as defined in manifest.json
 if (typeof FilterState !== 'undefined') {
   FilterState.getActiveFilter(function (activeFilter) {
-    // apply filter if present
-    if (document.readyState === 'loading' && activeFilter) {
-      document.addEventListener('DOMContentLoaded', () => {
-        filterNotebooks(activeFilter);
-      });
-    } else if (activeFilter) {
-      filterNotebooks(activeFilter);
-    } else {
-      showAllNotebooks();
-    }
+    // Load hideFeatured setting as well
+    FilterState.getHideFeatured(function (hideFeatured) {
+      // apply filter if present
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          if (activeFilter) {
+            filterNotebooks(activeFilter);
+          } else {
+            showAllNotebooks();
+          }
+          if (hideFeatured) {
+            hideFeaturedNotebooks();
+          }
+        });
+      } else {
+        if (activeFilter) {
+          filterNotebooks(activeFilter);
+        } else {
+          showAllNotebooks();
+        }
+        if (hideFeatured) {
+          hideFeaturedNotebooks();
+        }
+      }
+    });
   });
 } else {
   // Fallback if FilterState not loaded yet
@@ -64,6 +79,13 @@ function reapplyActiveFilter() {
     if (activeFilter) {
       filterNotebooks(activeFilter);
     }
+
+    // Also re-apply hideFeatured setting
+    FilterState.getHideFeatured(function (hideFeatured) {
+      if (hideFeatured) {
+        hideFeaturedNotebooks();
+      }
+    });
   });
 }
 
@@ -93,6 +115,17 @@ if (
         showAllNotebooks();
       }
     }
+
+    // React to hideFeatured changes
+    if (changes.hideFeatured) {
+      const newHideFeatured = changes.hideFeatured.newValue;
+
+      if (newHideFeatured) {
+        hideFeaturedNotebooks();
+      } else {
+        showFeaturedNotebooks();
+      }
+    }
   });
 }
 
@@ -107,6 +140,12 @@ if (
       filterNotebooks(message.filter);
     } else if (message.action === 'clearFilter') {
       showAllNotebooks();
+    } else if (message.action === 'toggleHideFeatured') {
+      if (message.hideFeatured) {
+        hideFeaturedNotebooks();
+      } else {
+        showFeaturedNotebooks();
+      }
     }
 
     sendResponse({
@@ -221,7 +260,92 @@ function showAllNotebooks() {
   }
 }
 
+function hideFeaturedNotebooks() {
+  try {
+    // Find all elements with class or text indicating they are featured notebooks
+    // Look for elements with "featured" in their class name or aria-label
+    const featuredElements = document.querySelectorAll(
+      '[class*="featured" i], [aria-label*="featured" i]'
+    );
+
+    featuredElements.forEach((element) => {
+      // Check if this is a notebook container
+      const isNotebookContainer =
+        element.tagName === 'PROJECT-BUTTON' ||
+        element.classList.contains('project-button-card') ||
+        element.closest('project-button') ||
+        element.closest('.project-button-card');
+
+      if (isNotebookContainer || element.tagName === 'PROJECT-BUTTON') {
+        element.style.display = 'none';
+      } else if (element.querySelector('.featured-project-title')) {
+        // This element contains a featured project
+        element.style.display = 'none';
+      }
+    });
+
+    // Also look for elements containing featured-project-title class
+    const featuredTitles = document.querySelectorAll('.featured-project-title');
+    featuredTitles.forEach((titleElement) => {
+      const container =
+        titleElement.closest('mat-card') ||
+        titleElement.closest('project-button') ||
+        titleElement.closest('[class*="project"]');
+
+      if (container) {
+        container.style.display = 'none';
+      }
+    });
+  } catch (error) {
+    console.error('Chrome Extension: Error hiding featured notebooks:', error);
+  }
+}
+
+function showFeaturedNotebooks() {
+  try {
+    // Show all elements that were hidden by hideFeaturedNotebooks
+    const featuredElements = document.querySelectorAll(
+      '[class*="featured" i], [aria-label*="featured" i]'
+    );
+
+    featuredElements.forEach((element) => {
+      const isNotebookContainer =
+        element.tagName === 'PROJECT-BUTTON' ||
+        element.classList.contains('project-button-card') ||
+        element.closest('project-button') ||
+        element.closest('.project-button-card');
+
+      if (isNotebookContainer || element.tagName === 'PROJECT-BUTTON') {
+        element.style.display = '';
+      } else if (element.querySelector('.featured-project-title')) {
+        element.style.display = '';
+      }
+    });
+
+    // Also show elements containing featured-project-title class
+    const featuredTitles = document.querySelectorAll('.featured-project-title');
+    featuredTitles.forEach((titleElement) => {
+      const container =
+        titleElement.closest('mat-card') ||
+        titleElement.closest('project-button') ||
+        titleElement.closest('[class*="project"]');
+
+      if (container) {
+        container.style.display = '';
+      }
+    });
+  } catch (error) {
+    console.error('Chrome Extension: Error showing featured notebooks:', error);
+  }
+}
+
 // Export for testing
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { doFilter, showAllNotebooks, filterNotebooks };
+  module.exports = {
+    doFilter,
+    showAllNotebooks,
+    filterNotebooks,
+    hideFeaturedNotebooks,
+    showFeaturedNotebooks,
+  };
 }
