@@ -159,7 +159,7 @@ const FilterState = {
    */
   getHideFeatured(callback) {
     if (typeof chrome === 'undefined' || !chrome.storage) {
-      callback(false);
+      callback(true);
       return;
     }
 
@@ -178,13 +178,13 @@ const FilterState = {
               'Failed to load hideFeatured from local storage:',
               chrome.runtime.lastError
             );
-            callback(false);
+            callback(true);
           } else {
-            callback(localResult.hideFeatured || false);
+            callback(localResult.hideFeatured !== undefined ? localResult.hideFeatured : true);
           }
         });
       } else {
-        callback(result.hideFeatured || false);
+        callback(result.hideFeatured !== undefined ? result.hideFeatured : true);
       }
     });
   },

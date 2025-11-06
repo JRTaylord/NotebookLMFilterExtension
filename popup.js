@@ -2,7 +2,7 @@
 const PopupState = {
   filters: [],
   activeFilter: null,
-  hideFeatured: false,
+  hideFeatured: true,
 
   getFilters() {
     return this.filters;
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         'Personal',
         'Shopping',
       ]);
-      PopupState.setHideFeatured(false);
+      PopupState.setHideFeatured(true);
       callback();
       return;
     }
