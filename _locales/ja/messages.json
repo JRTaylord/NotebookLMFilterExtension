@@ -1,0 +1,30 @@
+{
+  "extensionName": {
+    "message": "NotebookLM フィルター",
+    "description": "Name of the extension"
+  },
+  "extensionDescription": {
+    "message": "シンプルな NotebookLM フィルタリング拡張機能",
+    "description": "Description of the extension"
+  },
+  "extensionTitle": {
+    "message": "NotebookLM フィルター",
+    "description": "Default title shown in browser action"
+  },
+  "addFilterButton": {
+    "message": "新しいフィルターを追加",
+    "description": "Button to add a new filter"
+  },
+  "backButton": {
+    "message": "←",
+    "description": "Back button symbol"
+  },
+  "filterInputPlaceholder": {
+    "message": "フィルターキーワードを入力...",
+    "description": "Placeholder text for filter input field"
+  },
+  "confirmButton": {
+    "message": "確認",
+    "description": "Button to confirm adding a filter"
+  }
+}

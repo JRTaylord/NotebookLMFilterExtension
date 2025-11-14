@@ -7,7 +7,7 @@
   <body>
     <!-- Main filter view -->
     <div id="filterView" class="view hidden">
-      <button id="addFilterBtn" class="add-filter-btn">Add New Filter</button>
+      <button id="addFilterBtn" class="add-filter-btn" data-i18n="addFilterButton">Add New Filter</button>
 
       <div id="filterList" class="filter-list">
         <!-- Filters will be populated here by JavaScript -->
@@ -16,16 +16,17 @@
 
     <!-- Add new filter view -->
     <div id="addFilterView" class="view hidden add-filter-view">
-      <button id="backBtn" class="back-btn">←</button>
+      <button id="backBtn" class="back-btn" data-i18n="backButton">←</button>
 
       <div class="add-filter-form">
         <input
           type="text"
           id="filterInput"
+          data-i18n-placeholder="filterInputPlaceholder"
           placeholder="Enter filter keyword..."
           class="filter-input"
         />
-        <button id="confirmBtn" class="confirm-btn" disabled="true">
+        <button id="confirmBtn" class="confirm-btn" disabled="true" data-i18n="confirmButton">
           Confirm
         </button>
       </div>
