@@ -1,0 +1,28 @@
+{
+  "extensionName": {
+    "message": "NotebookLM Filter"
+  },
+  "extensionDescription": {
+    "message": "簡單的 NotebookLM 篩選擴充功能",
+    "description": "Description of the extension"
+  },
+  "extensionTitle": {
+    "message": "NotebookLM Filter"
+  },
+  "addFilterButton": {
+    "message": "新增篩選器",
+    "description": "Button to add a new filter"
+  },
+  "backButton": {
+    "message": "←",
+    "description": "Back button symbol"
+  },
+  "filterInputPlaceholder": {
+    "message": "輸入篩選關鍵字...",
+    "description": "Placeholder text for filter input field"
+  },
+  "confirmButton": {
+    "message": "確認",
+    "description": "Button to confirm adding a filter"
+  }
+}
