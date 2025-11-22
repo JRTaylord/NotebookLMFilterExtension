@@ -1,15 +1,13 @@
 {
   "extensionName": {
-    "message": "NotebookLM 篩選器",
-    "description": "Name of the extension"
+    "message": "NotebookLM Filter"
   },
   "extensionDescription": {
     "message": "簡單的 NotebookLM 篩選擴充功能",
     "description": "Description of the extension"
   },
   "extensionTitle": {
-    "message": "NotebookLM 篩選器",
-    "description": "Default title shown in browser action"
+    "message": "NotebookLM Filter"
   },
   "addFilterButton": {
     "message": "新增篩選器",

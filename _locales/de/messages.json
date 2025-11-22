@@ -1,15 +1,13 @@
 {
   "extensionName": {
-    "message": "NotebookLM Filter",
-    "description": "Name of the extension"
+    "message": "NotebookLM Filter"
   },
   "extensionDescription": {
     "message": "Eine einfache NotebookLM-Filtererweiterung",
     "description": "Description of the extension"
   },
   "extensionTitle": {
-    "message": "NotebookLM Filter",
-    "description": "Default title shown in browser action"
+    "message": "NotebookLM Filter"
   },
   "addFilterButton": {
     "message": "Neuen Filter hinzufügen",
