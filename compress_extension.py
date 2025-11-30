@@ -22,6 +22,7 @@ INCLUDE_FILES = [
 # Directories to include
 INCLUDE_DIRS = [
     'icons',
+    '_locales',
 ]
 
 def create_extension_zip():

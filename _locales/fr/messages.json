@@ -1,0 +1,28 @@
+{
+  "extensionName": {
+    "message": "NotebookLM Filter"
+  },
+  "extensionDescription": {
+    "message": "Une extension simple de filtrage NotebookLM",
+    "description": "Description of the extension"
+  },
+  "extensionTitle": {
+    "message": "NotebookLM Filter"
+  },
+  "addFilterButton": {
+    "message": "Ajouter un Nouveau Filtre",
+    "description": "Button to add a new filter"
+  },
+  "backButton": {
+    "message": "←",
+    "description": "Back button symbol"
+  },
+  "filterInputPlaceholder": {
+    "message": "Entrez le mot-clé du filtre...",
+    "description": "Placeholder text for filter input field"
+  },
+  "confirmButton": {
+    "message": "Confirmer",
+    "description": "Button to confirm adding a filter"
+  }
+}
